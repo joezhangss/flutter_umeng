@@ -1,0 +1,29 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="ujk.com.flutter_umeng">
+    <uses-permission android:name="android.permission.REORDER_TASKS"/>
+    <application>
+        <meta-data
+            android:name="com.huawei.hms.client.appid"
+            android:value="appid=100960819" />
+        <activity android:name=".MPushActivity"
+            android:launchMode="singleTask"
+            android:exported="true"
+            />
+
+        <receiver android:name=".MeizuReceiver">
+            <intent-filter>
+                <!-- 接收push消息 -->
+                <action android:name="com.meizu.flyme.push.intent.MESSAGE" />
+                <!-- 接收register消息 -->
+                <action android:name="com.meizu.flyme.push.intent.REGISTER.FEEDBACK" />
+                <!-- 接收unregister消息-->
+                <action android:name="com.meizu.flyme.push.intent.UNREGISTER.FEEDBACK" />
+                <!-- 兼容低版本Flyme3推送服务配置 -->
+                <action android:name="com.meizu.c2dm.intent.REGISTRATION" />
+                <action android:name="com.meizu.c2dm.intent.RECEIVE" />
+                <category android:name="ujk.com.flutter_umeng"/>
+            </intent-filter>
+        </receiver>
+    </application>
+
+</manifest>
