@@ -1,6 +1,7 @@
 package ujk.com.flutter_umeng;
 
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.umeng.message.PushAgent;
 import com.umeng.message.UTrack;
@@ -9,12 +10,14 @@ import com.umeng.message.tag.TagManager;
 
 import java.util.List;
 
-import io.flutter.Log;
+//import io.flutter.Log;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
+import android.os.Handler;
+import android.os.Message;
 
 /**
  * FlutterUmengPlugin
@@ -25,13 +28,30 @@ public class FlutterUmengPlugin implements MethodCallHandler {
      */
     private static Registrar mRegistrar;
      static MethodChannel channel;
+     static MethodChannel channelTags;//获取tags的通道
     private final String TAG = "FlutterUmengPlugin";
+
+    private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case 0:
+                    Log.e("TAG", "数据回调" + Thread.currentThread().getName());
+                    channelTags.invokeMethod("onTag", msg.obj.toString());
+//                   channel.invokeMethod("onTag", "111");
+                    break;
+            }
+
+        }
+    };
 
     public static void registerWith(Registrar registrar) {
         mRegistrar = registrar;
         channel = new MethodChannel(registrar.messenger(), "flutter_umeng");
         channel.setMethodCallHandler(new FlutterUmengPlugin());
 
+        channelTags = new MethodChannel(registrar.messenger(), "flutter_umeng_tags");
+        channelTags.setMethodCallHandler(new FlutterUmengPlugin());
     }
 
     @Override
@@ -59,6 +79,10 @@ public class FlutterUmengPlugin implements MethodCallHandler {
             case "ready":
                 offLine();
                 break;
+            case "getAllTags":
+                getAllTags(mPushAgent);
+
+                break;
             default:
                 result.notImplemented();
                 break;
@@ -75,10 +99,23 @@ public class FlutterUmengPlugin implements MethodCallHandler {
         mPushAgent.getTagManager().addTags(new TagManager.TCallBack() {
             @Override
             public void onMessage(boolean b, ITagManager.Result result1) {
-                Log.e(TAG, "设置标签:" + b);
+                Log.e(TAG, "设置标签:" + b + "  result1=="+result1);
                 result.success(b);
             }
         }, tags.toArray(new String[0]));
+    }
+
+    //获取所有的标签
+    private void getAllTags(PushAgent mPushAgent) {
+        mPushAgent.getTagManager().getTags(new TagManager.TagListCallBack() {
+            @Override
+            public void onMessage(boolean b, List<String> list) {
+                Log.e("TAG", "获取数据成功" + Thread.currentThread().getName()+"   list=="+list);
+                Message message= mHandler.obtainMessage(0,list);
+                mHandler.sendMessage(message);
+                //channel.invokeMethod("onTag","22222");
+            }
+        });
     }
 
     //删除标签

@@ -138,6 +138,10 @@
     {
         [self deleteTagWithTagName:call.arguments];
     }
+    else if([@"getAllTag" isEqualToString:call.method])
+    {
+        [self getAllTagWithFlutterResult: result];
+    }
     /************ 标签处理 end **************/
     else {
         result(FlutterMethodNotImplemented);
@@ -224,7 +228,7 @@
     
     if([response.notification.request.trigger isKindOfClass:[UNPushNotificationTrigger class]]) {
         //应用处于后台时的远程推送接受
-        NSLog(@"userInfo==%@",userInfo);
+//        NSLog(@"userInfo==%@",userInfo);
         //必须加这句代码
         [UMessage didReceiveRemoteNotification:userInfo];
         
@@ -232,7 +236,7 @@
 //        [self callBackFlutterWithMessage: resultMsg];
 //        _eventSink(userInfo[@"aps"][@"alert"][@"body"]);
         NSString *resultMsg = [self convertJSONWithDic:userInfo];
-        NSLog(@"resultMsg==%@",resultMsg);
+//        NSLog(@"resultMsg==%@",resultMsg);
         [self.pushChannel invokeMethod:@"onPushClick" arguments:resultMsg];//回传消息
         [[NSUserDefaults standardUserDefaults] setObject:resultMsg forKey:@"receiveBuffer"];
 
@@ -305,6 +309,8 @@
 - (void)setAliasWithPhone:(NSString *)phone andType:(NSString *)aliasType
 {
     [UMessage setAlias:phone type:aliasType response:^(id  _Nonnull responseObject, NSError * _Nonnull error) {
+        NSLog(@"responseObject==%@",responseObject);
+        NSLog(@"重置别名error==%@",error);
     }];
 }
 
@@ -315,34 +321,57 @@
     }];
 }
 
-
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
+{
+    if (![deviceToken isKindOfClass:[NSData class]]) return;
+    const unsigned *tokenBytes = (const unsigned *)[deviceToken bytes];
+    NSString *hexToken = [NSString stringWithFormat:@"%08x%08x%08x%08x%08x%08x%08x%08x",
+                          ntohl(tokenBytes[0]), ntohl(tokenBytes[1]), ntohl(tokenBytes[2]),
+                          ntohl(tokenBytes[3]), ntohl(tokenBytes[4]), ntohl(tokenBytes[5]),
+                          ntohl(tokenBytes[6]), ntohl(tokenBytes[7])];
+    NSLog(@"deviceToken:%@",hexToken);
+}
 
 - (void)addTagWithTagName:(NSArray *)tagName
 {
-
-    [UMessage getTags:^(NSSet * _Nonnull responseTags, NSInteger remain, NSError * _Nullable error) {
-        NSLog(@"获取的标签：responseTags==%@, remain==%ld",responseTags,remain);
-
-    }];
         //添加加权标签
     for(int i =0;i<tagName.count;i++){
-           NSLog(@"tagName[i]==%@",tagName[i]);
+//           NSLog(@"tagName[i]==%@",tagName[i]);
         [UMessage addTags:tagName[i] response:^(id  _Nullable responseObject, NSInteger remain, NSError * _Nullable error) {
-            NSLog(@"添加tag responseObject==%@",responseObject);
-            NSLog(@"添加tag remain==%ld",remain);
-            NSLog(@"添加标签error==%@",error);
+            NSLog(@"添加tag==%@ responseObject==%@",tagName[i], responseObject);
+//            NSLog(@"添加tag remain==%ld",remain);
+//            NSLog(@"添加标签error==%@",error);
         }];
     }
-    
+    [UMessage getTags:^(NSSet * _Nonnull responseTags, NSInteger remain, NSError * _Nullable error) {
+        NSLog(@"添加完所有标签后获取所有标签：responseTags==%@",responseTags);
+    }];
+}
+
+///获取所有的标签
+- (void)getAllTagWithFlutterResult:(FlutterResult)result
+{
+    [UMessage getTags:^(NSSet * _Nonnull responseTags, NSInteger remain, NSError * _Nullable error) {
+        NSLog(@"获取的标签：responseTags==%@",responseTags);
+        NSArray *array = [responseTags allObjects];
+        NSLog(@"array==%@",array);
+        NSMutableArray *arrayM = [NSMutableArray arrayWithArray:array ];
+        result(arrayM);//回传tag到flutter
+    }];
 }
 
 - (void)deleteTagWithTagName: (NSArray *)tagName
 {
+    NSLog(@"删除的tag：%@",tagName);
     for(int i =0;i<tagName.count;i++){
         [UMessage deleteTags:tagName[i] response:^(id  _Nullable responseObject, NSInteger remain, NSError * _Nullable error) {
-            
+            NSLog(@"删除的tag结果：%@, %@",tagName[i],responseObject);
         }];
     }
+    
+    [UMessage getTags:^(NSSet * _Nonnull responseTags, NSInteger remain, NSError * _Nullable error) {
+        NSLog(@"删除后获取所有标签：responseTags==%@",responseTags);
+    }];
 }
 
 -(void)getAllWeightedTag
