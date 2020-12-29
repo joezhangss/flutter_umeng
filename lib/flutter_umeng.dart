@@ -51,20 +51,12 @@ class FlutterUmeng {
   }
 
   static void getAllTags(OnTagAction onTagAction) async{
-<<<<<<< HEAD
 //    print('开始获取TAG');
-=======
-    print('开始获取TAG');
->>>>>>> db90b428db3f6bcbf68d955c93211bfcacbf99fa
     _channelTags.invokeMethod("getAllTags");
     await _channelTags.setMethodCallHandler((handler) async {
       if (handler.method == "onTag")
         {
-<<<<<<< HEAD
 //          print("获取的数据${handler.arguments}");
-=======
-          print("获取的数据${handler.arguments}");
->>>>>>> db90b428db3f6bcbf68d955c93211bfcacbf99fa
           onTagAction(handler.arguments);
         }
 
