@@ -15,10 +15,10 @@ A new Flutter plugin.
   s.source_files = 'Classes/**/*'
   s.public_header_files = 'Classes/**/*.h'
   s.dependency 'Flutter'
-  s.dependency 'UMCCommon'
+  s.dependency 'UMCCommon', '~> 2.1.1'
   s.dependency 'UMCPush'
   s.dependency 'UMCSecurityPlugins'
-  s.dependency 'UMCAnalytics'
+  s.dependency 'UMCAnalytics' , '~> 6.0.5'
 
   s.ios.deployment_target = '8.0'
 end
