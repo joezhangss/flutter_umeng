@@ -1,5 +1,6 @@
 package ujk.com.flutter_umeng;
 
+import android.app.Application;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -89,6 +90,16 @@ public class FlutterUmengPlugin implements MethodCallHandler {
             case "getAllTags":
                 getAllTags(mPushAgent);
 
+                break;
+
+            case "registerUmengPush":
+                //注册友盟
+                Application currentApp = (Application)mRegistrar.context().getApplicationContext();
+                String uAppKey = call.argument("uAppKey");
+                String uChannel = call.argument("uChannel");
+                String uPushSecret = call.argument("uPushSecret");
+                Log.e(TAG, "》》》准备注册友盟:application=" + currentApp );
+                SystemHelper.init(currentApp, uAppKey, uChannel, uPushSecret);
                 break;
             default:
                 result.notImplemented();

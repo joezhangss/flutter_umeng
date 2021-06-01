@@ -35,6 +35,22 @@ public class UmengApplication extends FlutterApplication {
     public void onCreate() {
         super.onCreate();
 
+        try{
+            ApplicationInfo applicationInfo = getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
+
+            String uAppKey = applicationInfo.metaData.getString("UMENG_APPKEY");
+            String uPushSecret = applicationInfo.metaData.getString("UMENG_PUSHSECRET");
+            String uChannel = applicationInfo.metaData.getString("UMENG_CHANNEL");
+
+            if (TextUtils.isEmpty(uChannel)) uChannel = "Umeng";
+
+            SystemHelper.preInit(this, uAppKey, uPushSecret, uChannel);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        /*
         try {
             ApplicationInfo applicationInfo = getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
 
@@ -52,16 +68,16 @@ public class UmengApplication extends FlutterApplication {
             //绑定华为离线通道
             HuaWeiRegister.register(this);
 
-            /*
-            //绑定小米通道
-            String xId = applicationInfo.metaData.getString("XIAO_ID");
-            String xKey = applicationInfo.metaData.getString("XIAO_KEY");
-            MiPushRegistar.register(this, xId, xKey);
 
-            //绑定魅族通道
-            String mId = applicationInfo.metaData.getString("MZ_ID");
-            String mKey = applicationInfo.metaData.getString("MZ_KEY");
-            MeizuRegister.register(this, mId, mKey);*/
+//            //绑定小米通道
+//            String xId = applicationInfo.metaData.getString("XIAO_ID");
+//            String xKey = applicationInfo.metaData.getString("XIAO_KEY");
+//            MiPushRegistar.register(this, xId, xKey);
+//
+//            //绑定魅族通道
+//            String mId = applicationInfo.metaData.getString("MZ_ID");
+//            String mKey = applicationInfo.metaData.getString("MZ_KEY");
+//            MeizuRegister.register(this, mId, mKey);
             //绑定小米通道
             String xId = applicationInfo.metaData.getString("MI_ID");
             String xKey = applicationInfo.metaData.getString("MI_KEY");
@@ -125,7 +141,7 @@ public class UmengApplication extends FlutterApplication {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        */
 
     }
 }

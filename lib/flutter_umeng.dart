@@ -43,7 +43,7 @@ class FlutterUmeng {
   //获取所有的标签
   static Future<List<dynamic>> getAllTag() async
   {
-    List list = new List();
+    List list = [];
     list = await _channel.invokeMethod("getAllTag");
 
     print("all tag==${list}");
@@ -73,6 +73,16 @@ class FlutterUmeng {
     print("初始化统计：${args}");
     _channel.invokeMethod("initAnalytics", args);
     return new Future.value(true);
+  }
+
+  //友盟推送注册
+  static Future<void> registerPush(String uAppKey, String uChannel, String uPushSecret){
+    Map<String, dynamic> args = {
+      "uAppKey": uAppKey,
+      "uChannel": uChannel,
+      "uPushSecret": uPushSecret,
+    };
+    _channel.invokeMethod("registerUmengPush", args);
   }
 
 //  //统计开始
