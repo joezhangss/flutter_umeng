@@ -1,6 +1,8 @@
 package ujk.com.flutter_umeng;
 
+import android.app.Activity;
 import android.app.Application;
+import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -12,6 +14,8 @@ import com.umeng.message.tag.TagManager;
 import java.util.List;
 
 //import io.flutter.Log;
+import io.flutter.embedding.engine.plugins.activity.ActivityAware;
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
@@ -20,17 +24,23 @@ import io.flutter.plugin.common.PluginRegistry.Registrar;
 import android.os.Handler;
 import android.os.Message;
 
+import androidx.annotation.NonNull;
+
+import io.flutter.embedding.engine.plugins.FlutterPlugin;
+
 /**
  * FlutterUmengPlugin
  */
-public class FlutterUmengPlugin implements MethodCallHandler {
+public class FlutterUmengPlugin implements MethodCallHandler, FlutterPlugin, ActivityAware {
     /**
      * Plugin registration.
      */
-    private static Registrar mRegistrar;
+//    private static Registrar mRegistrar;
      static MethodChannel channel;
      static MethodChannel channelTags;//获取tags的通道
     private final String TAG = "FlutterUmengPlugin";
+    private Context applicationContext;
+    private Activity activity;
 
     private Handler mHandler = new Handler() {
         @Override
@@ -54,7 +64,7 @@ public class FlutterUmengPlugin implements MethodCallHandler {
     };
 
     public static void registerWith(Registrar registrar) {
-        mRegistrar = registrar;
+//        mRegistrar = registrar;
         channel = new MethodChannel(registrar.messenger(), "flutter_umeng");
         channel.setMethodCallHandler(new FlutterUmengPlugin());
 
@@ -64,8 +74,8 @@ public class FlutterUmengPlugin implements MethodCallHandler {
 
     @Override
     public void onMethodCall(MethodCall call, Result result) {
-
-        PushAgent mPushAgent = PushAgent.getInstance(mRegistrar.context());
+//        PushAgent mPushAgent = PushAgent.getInstance(mRegistrar.context());
+        PushAgent mPushAgent = PushAgent.getInstance(activity.getBaseContext());
         switch (call.method) {
             case "setUMTags":
                 setUMTags(mPushAgent, call, result);
@@ -94,7 +104,8 @@ public class FlutterUmengPlugin implements MethodCallHandler {
 
             case "registerUmengPush":
                 //注册友盟
-                Application currentApp = (Application)mRegistrar.context().getApplicationContext();
+//                Application currentApp = (Application)mRegistrar.context().getApplicationContext();
+                Application currentApp = (Application)applicationContext;
                 String uAppKey = call.argument("uAppKey");
                 String uChannel = call.argument("uChannel");
                 String uPushSecret = call.argument("uPushSecret");
@@ -195,5 +206,41 @@ public class FlutterUmengPlugin implements MethodCallHandler {
         if(!TextUtils.isEmpty(UmengApplication.offLineBody)){
             channel.invokeMethod("onPushClick",UmengApplication.offLineBody);
         }
+    }
+
+    @Override
+    public void onAttachedToEngine(@NonNull FlutterPluginBinding binding) {
+        channel = new MethodChannel(binding.getBinaryMessenger(), "flutter_umeng");
+        channel.setMethodCallHandler(this);
+
+        channelTags = new MethodChannel(binding.getBinaryMessenger(), "flutter_umeng_tags");
+        channelTags.setMethodCallHandler(this);
+        applicationContext = binding.getApplicationContext();
+    }
+
+    @Override
+    public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
+        channel.setMethodCallHandler(null);
+        channelTags.setMethodCallHandler(null);
+    }
+
+    @Override
+    public void onAttachedToActivity(@NonNull ActivityPluginBinding binding) {
+        activity = binding.getActivity();
+    }
+
+    @Override
+    public void onDetachedFromActivityForConfigChanges() {
+
+    }
+
+    @Override
+    public void onReattachedToActivityForConfigChanges(@NonNull ActivityPluginBinding binding) {
+        onAttachedToActivity(binding);
+    }
+
+    @Override
+    public void onDetachedFromActivity() {
+        activity = null;
     }
 }
