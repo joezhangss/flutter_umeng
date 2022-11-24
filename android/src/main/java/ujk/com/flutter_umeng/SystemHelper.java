@@ -24,6 +24,7 @@ import com.umeng.commonsdk.utils.UMUtils;
 import com.umeng.message.IUmengRegisterCallback;
 import com.umeng.message.PushAgent;
 import com.umeng.message.UmengNotificationClickHandler;
+import com.umeng.message.api.UPushRegisterCallback;
 import com.umeng.message.entity.UMessage;
 
 import org.android.agoo.huawei.HuaWeiRegister;
@@ -188,7 +189,7 @@ public class SystemHelper {
             SystemHelper.registerDeviceChannel(context);
             //获取消息推送代理示例
             PushAgent mPushAgent = PushAgent.getInstance(context);
-            mPushAgent.register(new IUmengRegisterCallback() {
+            mPushAgent.register(new UPushRegisterCallback() {
                 @Override
                 public void onSuccess(String s) {
                     Log.e(TAG, "友盟注册成功:" + s);
@@ -215,8 +216,6 @@ public class SystemHelper {
                     FlutterUmengPlugin.channel.invokeMethod("onPushClick", new JSONObject(map).toString());
                 }
             });
-
-
 
             Log.e("TAG","当前包名："+context.getPackageName());
 
