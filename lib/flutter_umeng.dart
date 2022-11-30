@@ -53,7 +53,7 @@ class FlutterUmeng {
   static void getAllTags(OnTagAction onTagAction) async{
 //    print('开始获取TAG');
     _channelTags.invokeMethod("getAllTags");
-    await _channelTags.setMethodCallHandler((handler) async {
+    _channelTags.setMethodCallHandler((handler) async{
       if (handler.method == "onTag")
         {
 //          print("获取的数据${handler.arguments}");
@@ -76,7 +76,7 @@ class FlutterUmeng {
   }
 
   //友盟推送注册
-  static Future<void> registerPush(String uAppKey, String uChannel, String uPushSecret){
+  static Future<void> registerPush(String uAppKey, String uChannel, String uPushSecret) async {
     Map<String, dynamic> args = {
       "uAppKey": uAppKey,
       "uChannel": uChannel,
