@@ -29,6 +29,19 @@
             </intent-filter>
         </receiver>
 
+        <!--解决应用频繁自启动问题，关闭com.taobao.accs 自启动-->
+        <receiver
+            android:name="com.taobao.accs.EventReceiver"
+            tools:node="remove" />
+
+        <receiver android:name="com.xiaomi.push.service.receivers.NetworkStatusReceiver"
+            android:exported="true" tools:node="merge">
+            <intent-filter tools:node="remove">
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+                <action android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
+
         <!-- VIVO厂商通道 start-->
         <meta-data android:name="com.vivo.push.api_key" android:value="" />
         <!--            android:value="此处改为VIVO后台真实参数" />-->
@@ -45,10 +58,10 @@
             android:name="com.taobao.accs.data.MsgDistributeService"
             android:exported="false"
             tools:replace="android:exported" />
-        <receiver
+<!--         <receiver
             android:name="com.taobao.accs.EventReceiver"
             android:exported="false"
-            tools:replace="android:exported" />
+            tools:replace="android:exported" /> -->
         <receiver
             android:name="com.taobao.accs.ServiceReceiver"
             android:exported="false"
